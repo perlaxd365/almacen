@@ -1,9 +1,12 @@
 <?php
 
+use App\Http\Controllers\IndexController;
 use Illuminate\Support\Facades\Route;
 
+
+
 Route::get('/', function () {
-    return view('welcome');
+    return view('auth.login');
 });
 
 Route::middleware([
@@ -11,7 +14,15 @@ Route::middleware([
     config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    Route::get('/index', function () {
+        return view('index');
+    })->name('index');
+});
+
+
+Route::group(['middleware' => ['auth']], function () {
+    /**
+     * Logout Route
+     */
+    Route::get('index', [IndexController::class, 'index'])->name('index');
 });
