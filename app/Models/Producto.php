@@ -11,7 +11,7 @@ class Producto extends Model
         'nombre',
         'tipo',
         'unidad',
-        'stock_minimo',
+        'stock',
         'estado'
     ];
 
@@ -23,5 +23,10 @@ class Producto extends Model
     public function esRetornable()
     {
         return $this->tipo === 'retornable';
+    }
+    
+    public function movimientos()
+    {
+        return $this->hasMany(Movimiento::class);
     }
 }

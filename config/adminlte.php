@@ -339,6 +339,11 @@ return [
             'icon' => 'fas fa-box fa-lg',
         ],
         [
+            'text' => 'Movimientos',
+            'url' => 'movimiento',
+            'icon' => 'fas fa-angle-double-right',
+        ],
+        [
             'text' => 'multilevel',
             'icon' => 'fas fa-fw fa-share',
             'submenu' => [

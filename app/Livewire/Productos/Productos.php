@@ -10,7 +10,7 @@ class Productos extends Component
 {
 
     public $codigo, $nombre, $tipo = 'consumible',
-        $unidad = 'unidad', $stock_minimo = 0, $estado = true;
+        $unidad = 'unidad', $stock = 0, $estado = true;
 
     public function mount()
     {
@@ -21,7 +21,7 @@ class Productos extends Component
         'nombre' => 'required',
         'tipo' => 'required',
         'unidad' => 'required',
-        'stock_minimo' => 'integer|min:0'
+        'stock' => 'integer|min:0'
     ];
 
     public function guardar()
@@ -33,12 +33,12 @@ class Productos extends Component
             'nombre' => $this->nombre,
             'tipo' => $this->tipo,
             'unidad' => $this->unidad,
-            'stock_minimo' => $this->stock_minimo,
+            'stock' => $this->stock,
             'estado' => $this->estado,
         ]);
 
         $this->reset();
-
+        $this->generarCodigo();
         $this->dispatch(
             'alert',
             ['type' => 'success', 'title' => 'Se registro el producto correctamente', 'message' => 'Exito']
@@ -57,7 +57,7 @@ class Productos extends Component
         $this->nombre        = $producto->nombre;
         $this->tipo          = $producto->tipo;
         $this->unidad        = $producto->unidad;
-        $this->stock_minimo  = $producto->stock_minimo;
+        $this->stock         = $producto->stock;
         $this->estado        = $producto->estado;
 
         $this->dispatch('abrir-modal-editar');
@@ -76,14 +76,14 @@ class Productos extends Component
             'nombre'        => $this->nombre,
             'tipo'          => $this->tipo,
             'unidad'        => $this->unidad,
-            'stock_minimo'  => $this->stock_minimo,
+            'stock'         => $this->stock,
             'estado'        => $this->estado,
         ]);
 
         $this->dispatch('cerrar-modal-editar');
 
 
-        $this->reset();
+        $this->resetForm();
         $this->dispatch(
             'alert',
             ['type' => 'success', 'title' => 'Producto actualizado correctamente', 'message' => 'Exito']
@@ -94,16 +94,16 @@ class Productos extends Component
 
     public function resetForm()
     {
+
+        $this->codigo = $this->generarCodigo();
         $this->reset([
             'producto_id',
-            'codigo',
             'nombre',
             'tipo',
             'unidad',
-            'stock_minimo',
+            'stock',
             'estado',
         ]);
-
         $this->estado = true;
     }
 
@@ -113,12 +113,41 @@ class Productos extends Component
 
         $numero = $ultimo ? intval(substr($ultimo->codigo, 4)) + 1 : 1;
 
-        return 'SEMM-' . str_pad($numero, 5, '0', STR_PAD_LEFT);
+        return 'SM-' . str_pad($numero, 5, '0', STR_PAD_LEFT);
     }
 
     public function updatingBuscar()
     {
         $this->resetPage();
+    }
+
+    public function confirmarEliminar($id)
+    {
+        $this->dispatch('confirmar-eliminacion', id: $id);
+    }
+
+    public function eliminarProducto($id)
+    {
+        Producto::findOrFail($id)->update([
+            'estado' => false
+        ]);
+
+          $this->dispatch(
+            'alert',
+            ['type' => 'success', 'title' => 'Producto eliminado correctamente', 'message' => 'Exito']
+        );
+    }
+
+    public function habilitarProducto($id)
+    {
+        Producto::findOrFail($id)->update([
+            'estado' => true
+        ]);
+
+          $this->dispatch(
+            'alert',
+            ['type' => 'success', 'title' => 'Producto habilitado correctamente', 'message' => 'Exito']
+        );
     }
 
     public  $buscar;
@@ -131,9 +160,10 @@ class Productos extends Component
     {
         return view('livewire.productos.productos', [
             'productos' => Producto::where('nombre', 'like', "%{$this->buscar}%")
+            ->where('estado', true)
                 ->orWhere('codigo', 'like', "%{$this->buscar}%")
                 ->orderBy('nombre')
-                ->paginate(1)
+                ->paginate(5)
         ]);
     }
 }

@@ -20,7 +20,7 @@ return new class extends Migration
             $table->enum('tipo', ['consumible', 'retornable']);
 
             $table->string('unidad'); // unidad, kg, metro, juego
-            $table->integer('stock_minimo')->default(0);
+            $table->integer('stock')->default(0);
 
             $table->boolean('estado')->default(true);
 

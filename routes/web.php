@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\IndexController;
+use App\Http\Controllers\MovimientoController;
 use App\Http\Controllers\ProductoController;
 use Illuminate\Support\Facades\Route;
 
@@ -31,5 +32,10 @@ Route::group(['middleware' => ['auth']], function () {
      * Producto
      */
     Route::get('producto', [ProductoController::class, 'index'])->name('producto');
+    
+    /**
+     * Producto
+     */
+    Route::get('movimiento', [MovimientoController::class, 'index'])->name('movimiento');
 
 });

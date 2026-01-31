@@ -1,212 +1,158 @@
 <div class="container-fluid">
 
-    <div class="row justify-content-center">
-        <div class="col-xl-9 col-lg-10 col-md-11">
+    <div class="container-fluid py-3">
 
-            <div class="card shadow-lg border-0 rounded-lg">
+        {{-- REGISTRO --}}
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0 font-weight-semibold text-dark">
+                    Registro de producto
+                </h5>
+                <small class="text-muted">Sistema de almacén · Semmar Manufacturing</small>
+            </div>
 
-                {{-- HEADER --}}
-                <div class="card-header bg-white border-0 pb-0">
-                    <div class="d-flex align-items-center">
-                        <div class="mr-3">
-                            <span class="badge badge-primary p-3 rounded-circle">
-                                <i class="fas fa-box fa-lg"></i>
-                            </span>
-                        </div>
-                        <div>
-                            <h4 class="mb-0 text-dark font-weight-bold">
-                                Registro de Producto
-                            </h4>
-                            <small class="text-muted">
-                                Sistema de almacén – Semmar Manufacturing
-                            </small>
-                        </div>
+            <div class="card-body">
+
+                <div class="row g-3">
+                    <div class="col-md-2">
+                        <label class="form-label text-muted">Código</label>
+                        <input wire:model.defer="codigo" type="text" readonly
+                            class="form-control form-control-sm bg-light">
+
+                        @error('codigo')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
                     </div>
-                </div>
 
-                {{-- DIVIDER --}}
-                <hr class="my-3">
+                    <div class="col-md-4">
+                        <label class="form-label text-muted">Producto</label>
+                        <input wire:model.defer="nombre" type="text" class="form-control form-control-sm"
+                            placeholder="Tubo estructural 2x2">
 
-                {{-- BODY --}}
-                <div class="card-body pt-2">
+                        @error('nombre')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
+                    </div>
 
-                    <div class="row">
-
-                        <div class="col-md-3">
-                            <label class="text-muted font-weight-semibold">Código</label>
-                            <input wire:model.defer="codigo" readonly type="text"
-                                class="form-control form-control-lg" placeholder="TUB-001">
-                            @error('codigo')
-                                <small class="text-danger">{{ $message }}</small>
-                            @enderror
-                        </div>
-
-                        <div class="col-md-5">
-                            <label class="text-muted font-weight-semibold">Nombre del producto</label>
-                            <input wire:model.defer="nombre" type="text" class="form-control form-control-lg"
-                                placeholder="Tubo estructural 2x2">
-                            @error('nombre')
-                                <small class="text-danger">{{ $message }}</small>
-                            @enderror
-                        </div>
-
-                        <div class="col-md-2">
-                            <label class="text-muted font-weight-semibold">Tipo</label>
-                            <select wire:model.defer="tipo" class="form-control form-control-lg">
-                                <option value="consumible">Consumible</option>
-                                <option value="retornable">Retornable</option>
-                            </select>
-                        </div>
-
-                        <div class="col-md-2">
-                            <label class="text-muted font-weight-semibold">Unidad</label>
-                            <input wire:model.defer="unidad" type="text" class="form-control form-control-lg"
-                                placeholder="kg / m / und">
-                        </div>
+                    <div class="col-md-2">
+                        <label class="form-label text-muted">Tipo</label>
+                        <select wire:model.defer="tipo" class="form-control form-control-sm">
+                            <option value="consumible">Consumible</option>
+                            <option value="retornable">Retornable</option>
+                        </select>
 
                     </div>
 
-                    <div class="row mt-4">
+                    <div class="col-md-2">
+                        <label class="form-label text-muted">Unidad</label>
+                        <input wire:model.defer="unidad" type="text" class="form-control form-control-sm"
+                            placeholder="kg / m / und">
 
-                        <div class="col-md-3">
-                            <label class="text-muted font-weight-semibold">Stock mínimo</label>
-                            <input wire:model.defer="stock_minimo" type="number" class="form-control form-control-lg"
-                                min="0">
-                        </div>
-
-                        <div class="col-md-9 d-flex align-items-end justify-content-end">
-                            <button wire:click="guardar" wire:loading.attr="disabled"
-                                class="btn btn-primary btn-lg px-5">
-                                <i class="fas fa-save mr-2"></i>
-                                Guardar producto
-                            </button>
-                        </div>
-
+                        @error('unidad')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
                     </div>
 
-                </div>
-
-                {{-- FOOTER --}}
-                <div class="card-footer bg-white text-right text-muted small">
-                    Gestión interna de almacén · Semmar Manufacturing
+                    <div class="col-md-2">
+                        <label class="form-label text-muted">Stock mín.</label>
+                        <input wire:model.defer="stock" type="number" min="0"
+                            class="form-control form-control-sm">
+                    </div>
                 </div>
 
             </div>
 
+            <div class="card-footer bg-white text-end">
+                <button wire:click="guardar" wire:loading.attr="disabled" class="btn btn-primary btn-sm px-4">
+                    Guardar producto
+                </button>
+            </div>
         </div>
-    </div>
 
 
 
-    <div class="row justify-content-center mt-4">
-        <div class="col-xl-9 col-lg-10 col-md-11">
 
-            <div class="card shadow-lg border-0 rounded-lg">
-
-                {{-- HEADER --}}
-                <div class="card-header bg-white border-0 pb-0">
-                    <div class="d-flex justify-content-between align-items-center">
-
-                        <div>
-                            <h5 class="mb-0 text-dark font-weight-bold">
-                                <i class="fas fa-list mr-2 text-secondary"></i>
-                                Lista de Productos
-                            </h5>
-                            <small class="text-muted">
-                                Materiales y herramientas registrados
-                            </small>
-                        </div>
-
-                        {{-- FILTRO --}}
-                        <div class="w-25">
-                            <input type="text" wire:model.live.300ms="buscar" class="form-control form-control-sm"
-                                placeholder="Buscar producto...">
-                        </div>
-
-                    </div>
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-0 font-weight-semibold">Productos registrados</h6>
+                    <small class="text-muted">Materiales y herramientas</small>
                 </div>
 
-                {{-- DIVIDER --}}
-                <hr class="my-3">
+                <input type="text" wire:model.live.300ms="buscar" class="form-control form-control-sm w-25"
+                    placeholder="Buscar...">
+            </div>
 
-                {{-- BODY --}}
-                <div class="card-body pt-2">
+            <div class="card-body p-0">
 
-                    <div class="table-responsive">
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover mb-0">
+                        <thead class="bg-light">
+                            <tr class="text-muted">
+                                <th>Código</th>
+                                <th>Producto</th>
+                                <th>Tipo</th>
+                                <th>Unidad</th>
+                                <th class="text-end">Stock mín.</th>
+                                <th class="text-center">Estado</th>
+                                <th class="text-center">Acción</th>
+                            </tr>
+                        </thead>
 
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="thead-light">
+                        <tbody>
+                            @forelse($productos as $item)
                                 <tr>
-                                    <th>Código</th>
-                                    <th>Producto</th>
-                                    <th>Tipo</th>
-                                    <th>Unidad</th>
-                                    <th class="text-right">Stock mín.</th>
-                                    <th class="text-center">Estado</th>
-                                    <th class="text-center">Acciones</th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-                                @forelse($productos as $item)
-                                    <tr>
-                                        <td class="font-weight-bold">{{ $item->codigo }}</td>
-                                        <td>{{ $item->nombre }}</td>
-                                        <td>
-                                            <span
-                                                class="badge badge-{{ $item->tipo == 'consumible' ? 'info' : 'warning' }}">
-                                                {{ ucfirst($item->tipo) }}
-                                            </span>
-                                        </td>
-                                        <td>{{ $item->unidad }}</td>
-                                        <td class="text-right">{{ $item->stock_minimo }}</td>
-                                        <td class="text-center">
-                                            @if ($item->estado)
-                                                <span class="badge badge-success">Activo</span>
-                                            @else
-                                                <span class="badge badge-secondary">Inactivo</span>
-                                            @endif
-                                        </td>
-                                        <td class="text-center">
-                                            <button class="btn btn-sm btn-outline-primary"
-                                                wire:click="editar({{ $item->id }})">
-                                                <i class="fas fa-edit"></i>
+                                    <td class="fw-semibold">{{ $item->codigo }}</td>
+                                    <td>{{ $item->nombre }}</td>
+                                    <td class="text-capitalize">{{ $item->tipo }}</td>
+                                    <td>{{ $item->unidad }}</td>
+                                    <td class="text-end">{{ $item->stock }}</td>
+                                    <td class="text-center">
+                                        <span class="badge badge-{{ $item->estado ? 'success' : 'secondary' }}">
+                                            {{ $item->estado ? 'Activo' : 'Inactivo' }}
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <button class="btn btn-outline-secondary btn-xs"
+                                            wire:click="editar({{ $item->id }})">
+                                            Editar
+                                        </button>
+                                        @if ($item->estado)
+                                            <button class="btn btn-outline-danger btn-xs"
+                                                wire:click="confirmarEliminar({{ $item->id }})">
+                                                Eliminar
                                             </button>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="6" class="text-center text-muted py-4">
-                                            No hay productos registrados
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-
-                        </table>
-
-                    </div>
-
-                    <div class="mt-3 d-flex justify-content-between align-items-center">
-                        <small class="text-muted">
-                            Mostrando {{ $productos->firstItem() }} - {{ $productos->lastItem() }}
-                            de {{ $productos->total() }} productos
-                        </small>
-
-                        {{ $productos->links() }}
-                    </div>
-                </div>
-
-                {{-- FOOTER --}}
-                <div class="card-footer bg-white text-muted small">
-                    Total de productos: <strong>{{ $productos->count() }}</strong>
+                                        @else
+                                            <button class="btn btn-outline-info btn-xs"
+                                                wire:click="habilitarProducto({{ $item->id }})">
+                                                Habilitar
+                                            </button>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted py-4">
+                                        Sin productos registrados
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
 
             </div>
+
+            <div class="card-footer bg-white d-flex justify-content-between align-items-center">
+                <small class="text-muted">
+                    {{ $productos->firstItem() }} - {{ $productos->lastItem() }}
+                    de {{ $productos->total() }} registros
+                </small>
+
+                {{ $productos->links() }}
+            </div>
         </div>
     </div>
-
-
 
     <div wire:ignore.self class="modal fade" id="modalEditarProducto" tabindex="-1" data-backdrop="static"
         data-keyboard="false">
@@ -251,8 +197,8 @@
                         </div>
 
                         <div class="form-group col-md-4">
-                            <label>Stock mínimo</label>
-                            <input type="number" class="form-control" wire:model="stock_minimo">
+                            <label>Stock</label>
+                            <input type="number" class="form-control" wire:model="stock">
                         </div>
 
                     </div>
@@ -301,4 +247,23 @@
 
         });
     </script>
+
+    <script>
+        window.addEventListener('confirmar-eliminacion', event => {
+            Swal.fire({
+                title: '¿Eliminar producto?',
+                text: 'El producto quedará inactivo en el sistema',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#d33'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    @this.call('eliminarProducto', event.detail.id)
+                }
+            })
+        })
+    </script>
+
 </div>
