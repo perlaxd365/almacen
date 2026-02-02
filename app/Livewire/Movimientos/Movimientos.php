@@ -4,6 +4,7 @@ namespace App\Livewire\Movimientos;
 
 use App\Models\Movimiento;
 use App\Models\Producto;
+use App\Models\RetornoPendiente;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -139,7 +140,7 @@ class Movimientos extends Component
 
             Movimiento::create([
                 'producto_id' => $producto->id,
-                'user_id' => $this->receptor_user_id, // ✅ NOMBRE CORRECTO
+                'user_id' => $this->receptor_user_id,
                 'tipo' => $this->tipo,
                 'cantidad' => $this->cantidad,
                 'stock_anterior' => $stockAnterior,
@@ -147,7 +148,50 @@ class Movimientos extends Component
                 'orden_compra_numero' => $this->orden_compra_numero,
                 'proyecto_nombre' => $this->proyecto_nombre,
                 'observacion' => $this->motivo,
+
+                // 🔥 NUEVO
+                'es_retornable' => $producto->tipo === 'retornable',
+                'devuelto' => false,
+                'fecha_devolucion' => null,
             ]);
+            if (
+                $this->tipo === 'salida' &&
+                $producto->tipo === 'retornable'
+            ) {
+                RetornoPendiente::create([
+                    'producto_id' => $producto->id,
+                    'user_id' => $this->receptor_user_id,
+                    'orden_compra_numero' => $this->orden_compra_numero,
+                    'proyecto_nombre' => $this->proyecto_nombre,
+                    'cantidad_entregada' => $this->cantidad,
+                    'cantidad_pendiente' => $this->cantidad,
+                ]);
+            }
+
+            if (
+                $this->tipo === 'entrada' &&
+                $producto->tipo === 'retornable'
+            ) {
+                $pendiente = RetornoPendiente::where('producto_id', $producto->id)
+                    ->where('user_id', $this->receptor_user_id)
+                    ->where('orden_compra_numero', $this->orden_compra_numero)
+                    ->where('estado', 'pendiente')
+                    ->orderBy('id')
+                    ->first();
+
+                if ($pendiente) {
+                    $pendiente->cantidad_devuelta += $this->cantidad;
+                    $pendiente->cantidad_pendiente =
+                        $pendiente->cantidad_entregada - $pendiente->cantidad_devuelta;
+
+                    if ($pendiente->cantidad_pendiente <= 0) {
+                        $pendiente->estado = 'cerrado';
+                        $pendiente->cantidad_pendiente = 0;
+                    }
+
+                    $pendiente->save();
+                }
+            }
 
             $producto->update([
                 'stock' => $stockResultante
@@ -164,9 +208,10 @@ class Movimientos extends Component
 
         $this->dispatch(
             'alert',
-            ['type' => 'success', 'title' => 'Movimiento registrado', 'message' => 'Exito']
+            ['type' => 'success', 'title' => 'Movimiento registrado', 'message' => 'Éxito']
         );
     }
+
 
     /* =========================
      | FILTROS

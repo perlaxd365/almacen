@@ -28,13 +28,16 @@
                         @error('ordenSeleccionada')
                             <small class="text-danger">{{ $message }}</small>
                         @enderror
-                        
+
                     </div>
 
                     <div class="col-md-6 position-relative">
                         <label class="form-label fw-semibold">Buscar producto</label>
                         <input type="text" wire:model.live="buscarProductoRegistro" class="form-control"
                             placeholder="Código o nombre">
+                        @error('producto_id')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
 
                         @if ($buscarProductoRegistro)
                             <div class="list-group position-absolute w-100 shadow mt-1" style="z-index:1000">
@@ -64,7 +67,7 @@
                                         <div class="me-3">
                                             <i class="fas fa-cube fa-2x text-primary"></i>
                                         </div>
-                                        <div>
+                                        <div class="pl-2">
                                             <h6 class="mb-0 fw-bold">
                                                 {{ $productoSeleccionado->nombre }}
                                             </h6>
@@ -130,7 +133,7 @@
                         <label class="form-label fw-semibold">Motivo / Observación</label>
                         <input type="text" wire:model.defer="motivo" class="form-control"
                             placeholder="Compra, consumo, ajuste">
-                            @error('motivo')
+                        @error('motivo')
                             <small class="text-danger">{{ $message }}</small>
                         @enderror
                     </div>
@@ -166,7 +169,7 @@
                 </div>
 
                 <div class="col-md-2">
-                    <select wire:model="filtroTipo" class="form-control">
+                    <select wire:model.live.300ms="filtroTipo" class="form-control">
                         <option value="">Todos</option>
                         <option value="entrada">Entrada</option>
                         <option value="salida">Salida</option>
@@ -220,7 +223,7 @@
                             <td class="text-end">{{ $mov->stock_resultante }}</td>
                             <td>{{ $mov->orden_compra_numero }}</td>
                             <td>{{ $mov->proyecto_nombre }}</td>
-                            <td>{{ $mov->user->name ?? '-' }}</td>
+                            <td>{{ $mov->usuario->name ?? '-' }}</td>
                         </tr>
                     @empty
                         <tr>

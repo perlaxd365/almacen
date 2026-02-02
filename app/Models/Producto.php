@@ -14,6 +14,9 @@ class Producto extends Model
         'stock',
         'estado'
     ];
+    protected $casts = [
+        'retornable' => 'boolean',
+    ];
 
     public function esConsumible()
     {
@@ -24,7 +27,7 @@ class Producto extends Model
     {
         return $this->tipo === 'retornable';
     }
-    
+
     public function movimientos()
     {
         return $this->hasMany(Movimiento::class);
