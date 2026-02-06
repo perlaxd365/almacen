@@ -1,29 +1,7 @@
 <div>
     {{-- Because she competes with no one, no one can compete with her. --}}
     <style>
-        body {
-            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-        }
-
-        .welcome-card {
-            background: #ffffff;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
-            overflow: hidden;
-            max-width: 1100px;
-            width: 100%;
-        }
-
-        .welcome-left {
-            background: linear-gradient(160deg, #1e3c72, #2a5298);
-            color: #fff;
-            padding: 50px;
-        }
+     
 
         .welcome-left h1 {
             font-weight: 700;
