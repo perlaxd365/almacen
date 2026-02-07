@@ -38,7 +38,7 @@ class Productos extends Component
         ]);
 
         $this->reset();
-        $this->generarCodigo();
+        $this->codigo = $this->generarCodigo();
         $this->dispatch(
             'alert',
             ['type' => 'success', 'title' => 'Se registro el producto correctamente', 'message' => 'Exito']
@@ -132,7 +132,7 @@ class Productos extends Component
             'estado' => false
         ]);
 
-          $this->dispatch(
+        $this->dispatch(
             'alert',
             ['type' => 'success', 'title' => 'Producto eliminado correctamente', 'message' => 'Exito']
         );
@@ -144,7 +144,7 @@ class Productos extends Component
             'estado' => true
         ]);
 
-          $this->dispatch(
+        $this->dispatch(
             'alert',
             ['type' => 'success', 'title' => 'Producto habilitado correctamente', 'message' => 'Exito']
         );
@@ -160,7 +160,7 @@ class Productos extends Component
     {
         return view('livewire.productos.productos', [
             'productos' => Producto::where('nombre', 'like', "%{$this->buscar}%")
-            ->where('estado', true)
+                ->where('estado', true)
                 ->orWhere('codigo', 'like', "%{$this->buscar}%")
                 ->orderBy('nombre')
                 ->paginate(5)

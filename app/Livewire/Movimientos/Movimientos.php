@@ -232,7 +232,7 @@ class Movimientos extends Component
     public function render()
     {
         return view('livewire.movimientos.movimientos', [
-            'usuarios' => User::select('id', 'name')->orderBy('name')->get(),
+            'usuarios' => User::select('id', 'name')->where('tipo','OPERADOR')->orderBy('name')->get(),
             'movimientos' => Movimiento::with(['producto', 'usuario'])
                 ->when($this->buscarProductoTabla, function ($q) {
                     $q->whereHas(

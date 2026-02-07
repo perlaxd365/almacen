@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('telefono');
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->enum('tipo', ['ADMINISTRADOR', 'ALMACENERO'])->default('ADMINISTRADOR');
+            $table->enum('tipo', ['ADMINISTRADOR', 'OPERADOR', 'ALMACENERO'])->default('ADMINISTRADOR');
             $table->enum('estado', ['ACTIVO', 'INACTIVO'])->default('ACTIVO');
             $table->rememberToken();
             $table->foreignId('current_team_id')->nullable();
