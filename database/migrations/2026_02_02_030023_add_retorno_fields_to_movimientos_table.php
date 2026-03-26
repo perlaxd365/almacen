@@ -21,6 +21,10 @@ return new class extends Migration {
                 ->after('id')
                 ->constrained('movimientos')
                 ->nullOnDelete();
+
+            $table->boolean('es_prestamo_largo')
+                ->default(false)
+                ->after('tipo');
         });
     }
 

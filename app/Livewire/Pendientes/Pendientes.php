@@ -30,14 +30,6 @@ class Pendientes extends Component
         $this->resetPage();
     }
 
-    public function resetFiltros()
-    {
-        $this->reset([
-            'buscarProducto',
-            'orden',
-            'proyecto'
-        ]);
-    }
 
 
 
@@ -51,14 +43,67 @@ class Pendientes extends Component
     public $cantidad_pendiente;
     public $cantidad_devolver = 1;
 
+
+    public $filtroPrestamoLargo = false;
     /* =========================
      | LISTADO
      ========================= */
+
+
     public function getPendientesProperty()
     {
-        return RetornoPendiente::with(['producto', 'usuario'])
+        return RetornoPendiente::with(['producto', 'usuario', 'movimiento'])
             ->where('estado', 'pendiente')
+
+            // 🔍 PRODUCTO
+            ->when($this->buscarProducto, function ($q) {
+                $q->whereHas('producto', function ($p) {
+                    $p->where('nombre', 'like', "%{$this->buscarProducto}%")
+                        ->orWhere('codigo', 'like', "%{$this->buscarProducto}%");
+                });
+            })
+
+            // 🔍 ORDEN
+            ->when(
+                $this->orden,
+                fn($q) =>
+                $q->where('orden_compra_numero', 'like', "%{$this->orden}%")
+            )
+
+            // 🔍 PROYECTO
+            ->when(
+                $this->proyecto,
+                fn($q) =>
+                $q->where('proyecto_nombre', 'like', "%{$this->proyecto}%")
+            )
+
+            ->when($this->filtroPrestamoLargo, function ($q) {
+
+                // ✅ SOLO préstamos largos
+                $q->whereHas('movimiento', function ($m) {
+                    $m->where('es_prestamo_largo', true);
+                });
+            }, function ($q) {
+
+                // ❌ SIN préstamos largos (por defecto)
+                $q->where(function ($q2) {
+                    $q2->whereNull('movimiento_id')
+                        ->orWhereHas('movimiento', function ($m) {
+                            $m->where('es_prestamo_largo', false);
+                        });
+                });
+            })
+            ->latest()
             ->paginate(10);
+    }
+    public function resetFiltros()
+    {
+        $this->reset([
+            'buscarProducto',
+            'orden',
+            'proyecto',
+            'filtroPrestamoLargo' // 👈 agregar
+        ]);
     }
 
     /* =========================

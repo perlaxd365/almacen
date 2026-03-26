@@ -26,6 +26,8 @@ class Movimiento extends Model
         'orden_compra_numero',
         'proyecto_nombre',
 
+        //tiempo
+        'es_prestamo_largo',
         'observacion',
     ];
 

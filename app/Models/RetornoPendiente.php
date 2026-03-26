@@ -17,6 +17,7 @@ class RetornoPendiente extends Model
         'cantidad_devuelta',
         'cantidad_pendiente',
         'estado',
+        'movimiento_id'
     ];
 
     /* ================= RELACIONES ================= */
@@ -29,5 +30,10 @@ class RetornoPendiente extends Model
     public function usuario()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function movimiento()
+    {
+        return $this->belongsTo(Movimiento::class);
     }
 }

@@ -24,7 +24,8 @@ class Movimientos extends Component
     public $productoSeleccionado;
     public $buscarProductoRegistro = '';
 
-    public $tipo = 'entrada';
+    public $tipo = 'salida';
+    public $es_prestamo_largo = false;
     public $cantidad;
     public $motivo;
 
@@ -45,6 +46,15 @@ class Movimientos extends Component
     public $orden = '';
     public $proyecto = '';
 
+
+
+    /* =========================
+     | LISTADO / lista de salidas o entradas
+     ========================= */
+    public $items = [];
+
+
+
     /* =========================
      | CICLO DE VIDA
      ========================= */
@@ -55,6 +65,12 @@ class Movimientos extends Component
             ['numero' => 'ORD-000124', 'proyecto' => 'Proyecto Almacén Central'],
             ['numero' => 'ORD-000125', 'proyecto' => 'Proyecto Línea Producción'],
         ];
+    }
+    public function updatedTipo($value)
+    {
+        if ($value === 'entrada') {
+            $this->es_prestamo_largo = false;
+        }
     }
 
     /* =========================
@@ -105,6 +121,7 @@ class Movimientos extends Component
             'proyecto_nombre' => 'required',
             'producto_id' => 'required|exists:productos,id',
             'tipo' => 'required|in:entrada,salida',
+            'es_prestamo_largo' => 'boolean',
             'cantidad' => 'required|integer|min:1',
             'receptor_user_id' => 'required|exists:users,id',
         ];
@@ -117,88 +134,103 @@ class Movimientos extends Component
     public function registrar()
     {
         $this->validate([
-            'producto_id' => 'required|exists:productos,id',
+            'items' => 'required|array|min:1',
             'tipo' => 'required|in:entrada,salida',
-            'cantidad' => 'required|integer|min:1',
+            'es_prestamo_largo' => 'boolean',
             'ordenSeleccionada' => 'required',
             'receptor_user_id' => 'required|exists:users,id',
         ]);
 
         DB::transaction(function () {
 
-            $producto = Producto::lockForUpdate()->findOrFail($this->producto_id);
+            foreach ($this->items as $item) {
 
-            $stockAnterior = $producto->stock;
+                $producto = Producto::lockForUpdate()->findOrFail($item['producto_id']);
 
-            if ($this->tipo === 'salida' && $stockAnterior < $this->cantidad) {
-                throw new \Exception('Stock insuficiente');
-            }
+                $cantidad = $item['cantidad'];
+                $stockAnterior = $producto->stock;
 
-            $stockResultante = $this->tipo === 'entrada'
-                ? $stockAnterior + $this->cantidad
-                : $stockAnterior - $this->cantidad;
+                // 🔴 VALIDAR STOCK
+                if ($this->tipo === 'salida' && $stockAnterior < $cantidad) {
+                    throw new \Exception('Stock insuficiente para ' . $producto->nombre);
+                }
 
-            Movimiento::create([
-                'producto_id' => $producto->id,
-                'user_id' => $this->receptor_user_id,
-                'tipo' => $this->tipo,
-                'cantidad' => $this->cantidad,
-                'stock_anterior' => $stockAnterior,
-                'stock_resultante' => $stockResultante,
-                'orden_compra_numero' => $this->orden_compra_numero,
-                'proyecto_nombre' => $this->proyecto_nombre,
-                'observacion' => $this->motivo,
+                $stockResultante = $this->tipo === 'entrada'
+                    ? $stockAnterior + $cantidad
+                    : $stockAnterior - $cantidad;
 
-                // 🔥 NUEVO
-                'es_retornable' => $producto->tipo === 'retornable',
-                'devuelto' => false,
-                'fecha_devolucion' => null,
-            ]);
-            if (
-                $this->tipo === 'salida' &&
-                $producto->tipo === 'retornable'
-            ) {
-                RetornoPendiente::create([
+                // ✅ MOVIMIENTO
+                $movimiento =   Movimiento::create([
                     'producto_id' => $producto->id,
                     'user_id' => $this->receptor_user_id,
+                    'tipo' => $this->tipo,
+                    'cantidad' => $cantidad,
+                    'es_prestamo_largo' => $this->es_prestamo_largo,
+                    'stock_anterior' => $stockAnterior,
+                    'stock_resultante' => $stockResultante,
                     'orden_compra_numero' => $this->orden_compra_numero,
                     'proyecto_nombre' => $this->proyecto_nombre,
-                    'cantidad_entregada' => $this->cantidad,
-                    'cantidad_pendiente' => $this->cantidad,
+                    'observacion' => $this->motivo,
+                    'es_retornable' => $producto->tipo === 'retornable',
+                    'devuelto' => false,
+                    'fecha_devolucion' => null,
+                ]);
+
+                // 🔁 RETORNABLE - SALIDA
+                if (
+                    $this->tipo === 'salida' &&
+                    $producto->tipo === 'retornable'
+                ) {
+                    RetornoPendiente::create([
+                        'producto_id' => $producto->id,
+                        'user_id' => $this->receptor_user_id,
+                        'orden_compra_numero' => $this->orden_compra_numero,
+                        'proyecto_nombre' => $this->proyecto_nombre,
+                        'cantidad_entregada' => $cantidad,
+                        'cantidad_pendiente' => $cantidad,
+
+
+                        // 🔥 ESTA LÍNEA ES LA CLAVE
+                        'movimiento_id' => $movimiento->id,
+                    ]);
+                }
+
+                // 🔁 RETORNABLE - ENTRADA
+                if (
+                    $this->tipo === 'entrada' &&
+                    $producto->tipo === 'retornable'
+                ) {
+                    $pendiente = RetornoPendiente::where('producto_id', $producto->id)
+                        ->where('user_id', $this->receptor_user_id)
+                        ->where('orden_compra_numero', $this->orden_compra_numero)
+                        ->where('estado', 'pendiente')
+                        ->orderBy('id')
+                        ->first();
+
+                    if ($pendiente) {
+                        $pendiente->cantidad_devuelta += $cantidad;
+                        $pendiente->cantidad_pendiente =
+                            $pendiente->cantidad_entregada - $pendiente->cantidad_devuelta;
+
+                        if ($pendiente->cantidad_pendiente <= 0) {
+                            $pendiente->estado = 'cerrado';
+                            $pendiente->cantidad_pendiente = 0;
+                        }
+
+                        $pendiente->save();
+                    }
+                }
+
+                // ✅ ACTUALIZAR STOCK
+                $producto->update([
+                    'stock' => $stockResultante
                 ]);
             }
-
-            if (
-                $this->tipo === 'entrada' &&
-                $producto->tipo === 'retornable'
-            ) {
-                $pendiente = RetornoPendiente::where('producto_id', $producto->id)
-                    ->where('user_id', $this->receptor_user_id)
-                    ->where('orden_compra_numero', $this->orden_compra_numero)
-                    ->where('estado', 'pendiente')
-                    ->orderBy('id')
-                    ->first();
-
-                if ($pendiente) {
-                    $pendiente->cantidad_devuelta += $this->cantidad;
-                    $pendiente->cantidad_pendiente =
-                        $pendiente->cantidad_entregada - $pendiente->cantidad_devuelta;
-
-                    if ($pendiente->cantidad_pendiente <= 0) {
-                        $pendiente->estado = 'cerrado';
-                        $pendiente->cantidad_pendiente = 0;
-                    }
-
-                    $pendiente->save();
-                }
-            }
-
-            $producto->update([
-                'stock' => $stockResultante
-            ]);
         });
 
+        // 🔄 LIMPIAR TODO
         $this->reset([
+            'items',
             'productoSeleccionado',
             'producto_id',
             'cantidad',
@@ -208,7 +240,11 @@ class Movimientos extends Component
 
         $this->dispatch(
             'alert',
-            ['type' => 'success', 'title' => 'Movimiento registrado', 'message' => 'Éxito']
+            [
+                'type' => 'success',
+                'title' => 'Movimientos registrados',
+                'message' => 'Todos los productos se guardaron correctamente'
+            ]
         );
     }
 
@@ -226,13 +262,32 @@ class Movimientos extends Component
         $this->reset(['buscarProductoTabla', 'filtroTipo', 'orden', 'proyecto']);
     }
 
+    public function agregarItem()
+    {
+        if (!$this->producto_id || !$this->cantidad) return;
+
+        $this->items[] = [
+            'producto_id' => $this->producto_id,
+            'producto' => $this->productoSeleccionado,
+            'cantidad' => $this->cantidad,
+        ];
+
+        // limpiar
+        $this->reset(['producto_id', 'productoSeleccionado', 'cantidad']);
+    }
+    public function removeItem($index)
+    {
+        unset($this->items[$index]);
+        $this->items = array_values($this->items);
+    }
+
     /* =========================
      | RENDER
      ========================= */
     public function render()
     {
         return view('livewire.movimientos.movimientos', [
-            'usuarios' => User::select('id', 'name')->where('tipo','OPERADOR')->orderBy('name')->get(),
+            'usuarios' => User::select('id', 'name')->where('tipo', 'OPERADOR')->orderBy('name')->get(),
             'movimientos' => Movimiento::with(['producto', 'usuario'])
                 ->when($this->buscarProductoTabla, function ($q) {
                     $q->whereHas(

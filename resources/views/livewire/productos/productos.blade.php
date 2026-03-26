@@ -15,7 +15,7 @@
 
                 <div class="row g-3">
                     <div class="col-md-2">
-                        <label class="form-label text-muted">Código</label>
+                        <label class="form-label text-muted">CÓDIGO</label>
                         <input wire:model.defer="codigo" type="text" readonly
                             class="form-control form-control-sm bg-light">
 
@@ -25,7 +25,7 @@
                     </div>
 
                     <div class="col-md-4">
-                        <label class="form-label text-muted">Producto</label>
+                        <label class="form-label text-muted">PRODUCTO</label>
                         <input wire:model.defer="nombre" type="text" class="form-control form-control-sm"
                             placeholder="Tubo estructural 2x2">
 
@@ -35,18 +35,21 @@
                     </div>
 
                     <div class="col-md-2">
-                        <label class="form-label text-muted">Tipo</label>
+                        <label class="form-label text-muted">TIPO</label>
                         <select wire:model.defer="tipo" class="form-control form-control-sm">
                             <option value="consumible">Consumible</option>
-                            <option value="retornable">Retornable</option>
+                            <option value="retornable">Equipos/Herramientas</option>
                         </select>
 
                     </div>
 
                     <div class="col-md-2">
-                        <label class="form-label text-muted">Unidad</label>
-                        <input wire:model.defer="unidad" type="text" class="form-control form-control-sm"
-                            placeholder="kg / m / und">
+                        <label class="form-label text-muted">UNIDAD</label>
+                        <select wire:model.defer="unidad" class="form-control form-control-sm">
+                            <option value="">Seleccionar</option>
+                            <option value="unidad">Unidad</option>
+                            <option value="kg">KG</option>
+                        </select>
 
                         @error('unidad')
                             <small class="text-danger">{{ $message }}</small>
@@ -54,7 +57,7 @@
                     </div>
 
                     <div class="col-md-2">
-                        <label class="form-label text-muted">Stock mín.</label>
+                        <label class="form-label text-muted">STOCK</label>
                         <input wire:model.defer="stock" type="number" min="0"
                             class="form-control form-control-sm">
                     </div>
@@ -85,15 +88,22 @@
 
             <div class="card-body p-0">
 
+                <style>
+                    .bg-yellow {
+                        background-color: #ffc107;
+                        color: #000;
+                    }
+                </style>
+
                 <div class="table-responsive">
                     <table class="table table-sm table-hover mb-0">
-                        <thead class="bg-light">
+                        <thead class="bg-light text-uppercase fw-bold">
                             <tr class="text-muted">
                                 <th>Código</th>
                                 <th>Producto</th>
                                 <th>Tipo</th>
                                 <th>Unidad</th>
-                                <th class="text-end">Stock mín.</th>
+                                <th class="text-end">Stock</th>
                                 <th class="text-center">Estado</th>
                                 <th class="text-center">Acción</th>
                             </tr>
@@ -101,22 +111,48 @@
 
                         <tbody>
                             @forelse($productos as $item)
+                                @php
+                                    // 🔥 LÓGICA DE COLORES
+                                    $stock = $item->stock;
+
+                                    if ($stock <= 5) {
+                                        $colorStock = 'danger'; // rojo
+                                    } elseif ($stock <= 10) {
+                                        $colorStock = 'warning'; // naranja
+                                    } elseif ($stock <= 20) {
+                                        $colorStock = 'yellow'; // amarillo
+                                    } else {
+                                        $colorStock = 'success'; // normal
+                                    }
+                                @endphp
+
                                 <tr>
                                     <td class="fw-semibold">{{ $item->codigo }}</td>
                                     <td>{{ $item->nombre }}</td>
                                     <td class="text-capitalize">{{ $item->tipo }}</td>
                                     <td>{{ $item->unidad }}</td>
-                                    <td class="text-end">{{ $item->stock }}</td>
+
+                                    <!-- 🔥 STOCK CON COLOR -->
+                                    <td class="text-end">
+                                        <span class="badge bg-{{ $colorStock }}">
+                                            {{ $stock }}
+                                        </span>
+                                    </td>
+
+                                    <!-- ESTADO -->
                                     <td class="text-center">
-                                        <span class="badge badge-{{ $item->estado ? 'success' : 'secondary' }}">
+                                        <span class="badge bg-{{ $item->estado ? 'success' : 'danger' }}">
                                             {{ $item->estado ? 'Activo' : 'Inactivo' }}
                                         </span>
                                     </td>
+
+                                    <!-- ACCIONES -->
                                     <td class="text-center">
                                         <button class="btn btn-outline-secondary btn-xs"
                                             wire:click="editar({{ $item->id }})">
                                             Editar
                                         </button>
+
                                         @if ($item->estado)
                                             <button class="btn btn-outline-danger btn-xs"
                                                 wire:click="confirmarEliminar({{ $item->id }})">
@@ -130,6 +166,7 @@
                                         @endif
                                     </td>
                                 </tr>
+
                             @empty
                                 <tr>
                                     <td colspan="7" class="text-center text-muted py-4">
@@ -174,37 +211,45 @@
                     <div class="form-row">
 
                         <div class="form-group col-md-4">
-                            <label>Código</label>
+                            <label>CÓDIGO</label>
                             <input type="text" class="form-control" wire:model="codigo">
                         </div>
 
                         <div class="form-group col-md-8">
-                            <label>Nombre</label>
+                            <label>NOMBRE</label>
                             <input type="text" class="form-control" wire:model="nombre">
                         </div>
 
                         <div class="form-group col-md-4">
-                            <label>Tipo</label>
+                            <label>TIPO</label>
                             <select class="form-control" wire:model="tipo">
                                 <option value="consumible">Consumible</option>
-                                <option value="retornable">Retornable</option>
+                                <option value="retornable">Equipos/Herramientas</option>
                             </select>
                         </div>
 
                         <div class="form-group col-md-4">
-                            <label>Unidad</label>
-                            <input type="text" class="form-control" wire:model="unidad">
+                            <label>UNIDAD</label>
+                            <select wire:model.defer="unidad" class="form-control">
+                                <option value="">Seleccionar</option>
+                                <option value="unidad">Unidad</option>
+                                <option value="kg">KG</option>
+                            </select>
+
+                            @error('unidad')
+                                <small class="text-danger">{{ $message }}</small>
+                            @enderror
                         </div>
 
                         <div class="form-group col-md-4">
-                            <label>Stock</label>
+                            <label>STOCK</label>
                             <input type="number" class="form-control" wire:model="stock">
                         </div>
 
                     </div>
 
                     <div class="form-group">
-                        <label>Estado</label>
+                        <label>ESTADO</label>
                         <select class="form-control" wire:model="estado">
                             <option value="1">Activo</option>
                             <option value="0">Inactivo</option>
