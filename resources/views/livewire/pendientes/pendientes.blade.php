@@ -27,7 +27,7 @@
                 </div>
 
                 <div class="col-md-3">
-                    <label class="form-label small text-muted">Proyecto</label>
+                    <label class="form-label small text-muted">Nombre Proyecto</label>
                     <input type="text" wire:model.live.300ms="proyecto"
                         class="form-control rounded-3 border-0 shadow-sm" placeholder="Nombre del proyecto">
                 </div>
@@ -41,6 +41,7 @@
                         </label>
                     </div>
                 </div>
+
                 <div class="col-md-2 d-grid">
                     <button class="btn btn-light border rounded-3" wire:click="resetFiltros">
                         Limpiar
@@ -52,6 +53,8 @@
         </div>
     </div>
 
+
+
     {{-- TABLA --}}
     <div class="card border-0 shadow-sm rounded-4">
         <div class="card-body p-0">
@@ -61,11 +64,12 @@
                 <table class="table align-middle mb-0">
 
                     <thead class="table-light">
-                        <tr class="text-muted small">
+                        <tr class="text-muted text-uppercase  small">
                             <th class="ps-4">Producto</th>
                             <th>Orden</th>
-                            <th>Proyecto</th>
+                            <th>Nombre Proyecto</th>
                             <th>Responsable</th>
+                            <th>Fecha</th>
                             <th class="text-center">Pendiente</th>
                             <th class="pe-4 text-end">Acción</th>
                         </tr>
@@ -99,6 +103,10 @@
                                 {{-- USUARIO --}}
                                 <td>
                                     {{ $item->usuario->name }}
+                                </td>
+                                {{-- USUARIO --}}
+                                <td>
+                                    {{ DateUtil::getFechaHora($item->created_at) }}
                                 </td>
 
                                 {{-- PENDIENTE --}}

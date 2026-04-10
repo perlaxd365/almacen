@@ -250,9 +250,12 @@
                                             {{ $mov->proyecto_nombre }}
                                         </small>
                                     </td>
-
                                     <td class="pe-4">
                                         {{ $mov->usuario->name ?? '-' }}
+                                        <br>
+                                        @if ($mov->observacion)
+                                            <small class="text-muted">Observación: {{ $mov->observacion }}</small>
+                                        @endif
                                     </td>
 
                                 </tr>

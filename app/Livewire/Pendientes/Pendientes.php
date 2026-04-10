@@ -96,6 +96,9 @@ class Pendientes extends Component
             ->latest()
             ->paginate(10);
     }
+
+
+    
     public function resetFiltros()
     {
         $this->reset([

@@ -5,6 +5,7 @@ use App\Http\Controllers\MovimientoController;
 use App\Http\Controllers\PendienteController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\ReporteController;
+use App\Http\Controllers\TrabajadorController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -49,4 +50,9 @@ Route::group(['middleware' => ['auth']], function () {
      * Producto
      */
     Route::get('reporte', [ReporteController::class, 'index'])->name('reporte');
+
+    /**
+     * Trabajador
+     */
+    Route::get('trabajador', [TrabajadorController::class, 'index'])->name('trabajador');
 });

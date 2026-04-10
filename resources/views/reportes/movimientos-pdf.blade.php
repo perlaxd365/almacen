@@ -135,7 +135,7 @@
             <tr>
                 <th>#</th>
                 <th>Producto</th>
-                <th>Proyecto</th>
+                <th>Nombre Proyecto</th>
                 <th>Orden</th>
                 <th>Usuario</th>
                 <th class="text-center">Cantidad</th>

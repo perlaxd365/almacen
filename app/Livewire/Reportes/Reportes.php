@@ -24,6 +24,7 @@ class Reportes extends Component
     public $desde;
     public $hasta;
     public $proyecto;
+    public $trabajador;
     public $orden_compra;
 
     /* =========================
@@ -48,6 +49,11 @@ class Reportes extends Component
         ->when($this->producto, function ($q) {
             $q->whereHas('producto', fn ($p) =>
                 $p->where('nombre', 'like', "%{$this->producto}%")
+            );
+        })
+        ->when($this->trabajador, function ($q) {
+            $q->whereHas('usuario', fn ($p) =>
+                $p->where('name', 'like', "%{$this->trabajador}%")
             );
         })
         ->when($this->tipo, fn ($q) =>

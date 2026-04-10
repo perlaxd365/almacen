@@ -42,6 +42,14 @@
                     <input type="text" class="form-control form-control-sm" wire:model.live.300ms="proyecto"
                         placeholder="Nombre del proyecto">
                 </div>
+                
+                {{-- TRABAJADOR --}}
+                <div class="col-lg-3 col-md-6">
+                    <label class="form-label fw-semibold small">Trabajador</label>
+                    <input type="text" class="form-control form-control-sm" wire:model.live.300ms="trabajador"
+                        placeholder="Nombre del trabajador">
+                </div>
+
 
                 {{-- TIPO --}}
                 <div class="col-lg-2 col-md-4">

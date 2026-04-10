@@ -318,30 +318,30 @@ return [
 
         ['header' => 'PROCESOS'],
         [
-            'text' => 'Pendientes',
-            'url' => 'pendiente',
-            'icon' => 'fas fa-hourglass',
-        ],
-        [
-            'text' => 'Productos',
+            'text' => 'PRODUCTOS',
             'url' => 'producto',
-            'icon' => 'fas fa-box fa-lg',
+            'icon' => 'fas fa-box fa-lg text-primary',
         ],
         [
-            'text' => 'Movimientos',
+            'text' => 'DEVOLUCIÓN DE PRODUCTO',
+            'url' => 'pendiente',
+            'icon' => 'fas fa-hourglass  text-primary',
+        ],
+        [
+            'text' => 'MOVIMIENTOS',
             'url' => 'movimiento',
-            'icon' => 'fas fa-angle-double-right',
+            'icon' => 'fas fa-angle-double-right  text-primary',
         ],
         [
-            'text' => 'Reportes',
+            'text' => 'REPORTES',
             'url' => 'reporte',
-            'icon' => 'fa fa-signal',
+            'icon' => 'fa fa-signal  text-primary',
         ],
-        ['header' => 'labels'],
+        ['header' => 'CONFIGURACION'],
         [
-            'text' => 'important',
+            'text' => 'Trabajadores',
             'icon_color' => 'red',
-            'url' => '#',
+            'url' => 'trabajador',
         ],
         [
             'text' => 'warning',
